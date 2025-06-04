@@ -296,7 +296,18 @@ if __name__ == "__main__":
         
             # log data
             t += timestep
-            error = tuple(np.subtract(sim.targets[sim.current_target], (pos[0], pos[1], pos[2], yaw)))
+            # Convert the tuple to a list to allow modifications
+            error = list(np.subtract(sim.targets[sim.current_target], (pos[0], pos[1], pos[2], yaw)))
+
+            # Normalize the yaw error to be within [-π, π]
+            while error[3] > np.pi:
+                error[3] -= 2 * np.pi
+            while error[3] < -np.pi:
+                error[3] += 2 * np.pi
+
+            # Convert the list back to a tuple
+            error = tuple(error)
+
             sim.log_data(t, pos, error, controller_output)
 
         rpm = sim.tello_controller.compute_control(
